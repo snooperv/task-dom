@@ -5,6 +5,11 @@
   Считаем, что всегда передается тег, допускающий вставку текста в качестве своего содержимого (P, DIV, I и пр.).
 */
 export function appendToBody(tag, content, count) {
+    for (let i = 0; i < count; i++) {
+        let elem = document.createElement(tag);
+        elem.textContent = content;
+        document.body.append(elem);
+    }
 }
 
 /*
@@ -15,6 +20,27 @@ export function appendToBody(tag, content, count) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function generateTree(childrenCount, level) {
+    let counts = 0,
+        elems = [];
+    for (let i = 0; i < level; i++) {
+        let countsPrev = counts,
+            k = 0;
+        counts += childrenCount ** i;
+        for (let j = countsPrev; j < counts; j++) {
+            elems[j] = document.createElement('div');
+            elems[j].classList.add('item_' + (i + 1));
+            if (i > 0) {
+                if (k < childrenCount) {
+                    k++;
+                } else {
+                    k = 1;
+                    --countsPrev;
+                }
+                elems[countsPrev - 1].append(elems[j]);
+            }
+        }
+    }
+    return elems[0];
 }
 
 /*
@@ -26,4 +52,12 @@ export function generateTree(childrenCount, level) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function replaceNodes() {
+    let tree = generateTree(2, 3);
+    [].forEach.call(tree.querySelectorAll('div.item_2'), function (divItem) {
+        var section = document.createElement('section');
+        section.classList.add(divItem.className);
+        section.innerHTML = divItem.innerHTML;
+        divItem.parentNode.replaceChild(section, divItem);
+    });
+    return tree;
 }
